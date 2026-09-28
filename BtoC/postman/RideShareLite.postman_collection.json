@@ -1,0 +1,472 @@
+{
+  "info": {
+    "name": "RideShareLite",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    }
+  ],
+  "item": [
+    {
+      "name": "1 Normal flow (run in order)",
+      "item": [
+        {
+          "name": "1 Add user Arun (driver)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/users",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Arun Kumar\",\n  \"email\": \"arun@gmail.com\",\n  \"phone\": \"9876543210\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "2 Add user Karthik (rider)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/users",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Karthik R\",\n  \"email\": \"karthik@gmail.com\",\n  \"phone\": \"9876543211\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "3 Add user Divya (rider)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/users",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Divya M\",\n  \"email\": \"divya@gmail.com\",\n  \"phone\": \"9876543212\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "4 Get all users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/users"
+          }
+        },
+        {
+          "name": "5 Update user",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/users/3",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Divya Mohan\",\n  \"email\": \"divya@gmail.com\",\n  \"phone\": \"9876543212\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "6 Arun publishes ride (3 seats)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/rides?driverId=1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"origin\": \"Gandhipuram\",\n  \"destination\": \"Sri Eshwar College\",\n  \"departureTime\": \"2026-10-01T08:15:00\",\n  \"totalSeats\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "7 Search rides (route + time window)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/rides/search?origin=gandhipuram&destination=sri eshwar college&from=2026-10-01T07:30:00&to=2026-10-01T09:30:00"
+          }
+        },
+        {
+          "name": "8 Karthik requests 1 seat",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/rides/1/requests?riderId=2",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"seatsRequested\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "9 Driver sees requests for ride 1",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/rides/1/requests"
+          }
+        },
+        {
+          "name": "10 Arun approves request 1",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": "{{baseUrl}}/api/requests/1/approve?driverId=1"
+          }
+        },
+        {
+          "name": "11 Check ride 1 (seats now 2)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/rides/1"
+          }
+        },
+        {
+          "name": "12 History of Arun (driver)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/users/1/history"
+          }
+        },
+        {
+          "name": "13 History of Karthik (rider)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/users/2/history"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2 Edge cases (run after normal flow)",
+      "item": [
+        {
+          "name": "Driver requests own ride",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/rides/1/requests?riderId=1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"seatsRequested\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Same rider requests again",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/rides/1/requests?riderId=2",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"seatsRequested\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Zero seats in ride",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/rides?driverId=1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"origin\": \"Ukkadam\",\n  \"destination\": \"Sri Eshwar College\",\n  \"departureTime\": \"2026-10-01T08:00:00\",\n  \"totalSeats\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Blank origin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/rides?driverId=1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"origin\": \"\",\n  \"destination\": \"Sri Eshwar College\",\n  \"departureTime\": \"2026-10-01T08:00:00\",\n  \"totalSeats\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Departure in the past",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/rides?driverId=1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"origin\": \"Ukkadam\",\n  \"destination\": \"Sri Eshwar College\",\n  \"departureTime\": \"2025-01-01T08:00:00\",\n  \"totalSeats\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Same origin and destination",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/rides?driverId=1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"origin\": \"Ukkadam\",\n  \"destination\": \"ukkadam\",\n  \"departureTime\": \"2026-10-01T08:00:00\",\n  \"totalSeats\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Invalid email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/users",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test\",\n  \"email\": \"not-an-email\",\n  \"phone\": \"123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "No seats: publish ride with 1 seat (ride 2)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/rides?driverId=1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"origin\": \"Sri Eshwar College\",\n  \"destination\": \"Gandhipuram\",\n  \"departureTime\": \"2026-10-01T17:30:00\",\n  \"totalSeats\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "No seats: Karthik requests (request 2)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/rides/2/requests?riderId=2",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"seatsRequested\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "No seats: Divya requests (request 3)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/rides/2/requests?riderId=3",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"seatsRequested\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "No seats: approve request 2 (ride becomes FULL)",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": "{{baseUrl}}/api/requests/2/approve?driverId=1"
+          }
+        },
+        {
+          "name": "No seats: approve request 3 -> ERROR",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": "{{baseUrl}}/api/requests/3/approve?driverId=1"
+          }
+        },
+        {
+          "name": "Wrong driver approves",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": "{{baseUrl}}/api/requests/3/reject?driverId=2"
+          }
+        },
+        {
+          "name": "Ride not found (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/rides/999"
+          }
+        },
+        {
+          "name": "Search with no match (empty list)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/rides/search?origin=Pollachi&destination=Sri Eshwar College&from=2026-10-01T07:00:00&to=2026-10-01T09:00:00"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RideShareLite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+          --bg: #f4f6fa;
+          --card: #ffffff;
+          --text: #1f2933;
+          --muted: #6b7785;
+          --line: #e3e8ee;
+          --rider: #0e7c86;
+          --rider-light: #e3f5f6;
+          --driver: #d9480f;
+          --driver-light: #fdeee6;
+          --green: #2b8a3e;
+          --red: #c92a2a;
+          --main: var(--rider);
+          --main-light: var(--rider-light);
+        }
+        body.driver-mode { --main: var(--driver); --main-light: var(--driver-light); }
+
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: "Poppins", Arial, sans-serif; background: var(--bg); color: var(--text); }
+
+        /* top bar */
+        .topbar { background: var(--main); color: white; transition: background .3s; }
+        .topbar-inner { max-width: 1100px; margin: auto; padding: 14px 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+        .logo { font-size: 22px; font-weight: 700; cursor: pointer; }
+        .logo span { font-weight: 400; opacity: .8; }
+        .topbar .spacer { flex: 1; }
+        .who { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+        .who select { width: 180px; padding: 6px 8px; border-radius: 6px; border: none; font-family: inherit; }
+        .topbar button { background: rgba(255,255,255,.18); color: white; border: 1px solid rgba(255,255,255,.4); padding: 7px 14px; border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 13px; }
+        .topbar button:hover { background: rgba(255,255,255,.3); }
+
+        main { max-width: 1100px; margin: auto; padding: 24px 20px 40px; }
+
+        /* message */
+        #message { max-width: 1100px; margin: 16px auto 0; padding: 0 20px; }
+        #message div { padding: 12px 16px; border-radius: 8px; font-weight: 500; }
+        #message .ok { background: #e6f4ea; color: var(--green); border-left: 5px solid var(--green); }
+        #message .err { background: #fdecec; color: var(--red); border-left: 5px solid var(--red); }
+
+        /* home page */
+        .hero { text-align: center; padding: 20px 0 10px; }
+        .hero h1 { font-size: 34px; margin: 0 0 8px; }
+        .hero p { color: var(--muted); margin: 0; }
+        .choose { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 30px 0; }
+        .choice { background: var(--card); border-radius: 14px; padding: 30px; cursor: pointer; border: 2px solid transparent; box-shadow: 0 4px 14px rgba(0,0,0,.06); transition: transform .15s, border-color .15s; }
+        .choice:hover { transform: translateY(-4px); }
+        .choice.rider:hover { border-color: var(--rider); }
+        .choice.driver:hover { border-color: var(--driver); }
+        .choice .icon { font-size: 44px; }
+        .choice h2 { margin: 10px 0 6px; }
+        .choice.rider h2 { color: var(--rider); }
+        .choice.driver h2 { color: var(--driver); }
+        .choice p { color: var(--muted); margin: 0; font-size: 14px; }
+
+        /* cards and forms */
+        .card { background: var(--card); border-radius: 12px; padding: 20px 22px; margin-bottom: 20px; box-shadow: 0 3px 12px rgba(0,0,0,.05); }
+        .card h2 { margin: 0 0 4px; font-size: 19px; color: var(--main); }
+        .card .sub { margin: 0 0 14px; color: var(--muted); font-size: 13px; }
+        .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+        label { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 4px; }
+        input, select { width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; font-size: 14px; font-family: inherit; background: #fbfcfd; }
+        input:focus, select:focus { outline: 2px solid var(--main); border-color: transparent; }
+        .btn { margin-top: 16px; padding: 10px 22px; background: var(--main); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+        .btn:hover { opacity: .9; }
+        .btn.small { margin: 0; padding: 6px 14px; font-size: 13px; }
+        .btn.green { background: var(--green); }
+        .btn.red { background: var(--red); }
+        .btn.light { background: var(--main-light); color: var(--main); }
+
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+        /* ride cards */
+        .list { display: grid; gap: 12px; }
+        .item { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; background: #fcfdfe; }
+        .item .route { font-weight: 600; font-size: 15px; }
+        .item .meta { color: var(--muted); font-size: 13px; margin-top: 2px; }
+        .item .grow { flex: 1; min-width: 200px; }
+        .item .actions { display: flex; gap: 8px; align-items: center; }
+        .time-box { background: var(--main-light); color: var(--main); border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 76px; }
+        .time-box b { display: block; font-size: 17px; }
+        .time-box small { font-size: 11px; }
+        .seats { font-size: 13px; color: var(--muted); }
+        .bar { height: 6px; background: var(--line); border-radius: 4px; width: 110px; margin-top: 4px; overflow: hidden; }
+        .bar div { height: 100%; background: var(--main); }
+        .chip { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .OPEN, .APPROVED { background: #e6f4ea; color: var(--green); }
+        .FULL, .PENDING { background: #fff4d6; color: #a26a00; }
+        .CANCELLED, .REJECTED { background: #fdecec; color: var(--red); }
+        .empty { color: var(--muted); font-size: 14px; padding: 12px 0; }
+        .count { background: var(--main); color: white; border-radius: 20px; padding: 1px 9px; font-size: 12px; margin-left: 6px; }
+
+        @media (max-width: 760px) { .choose, .two-col { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="topbar-inner">
+        <div class="logo" onclick="showPage('home')">RideShare<span>Lite</span></div>
+        <div class="spacer"></div>
+        <div class="who" id="whoBox" style="display:none">
+            <span id="whoLabel">Logged in as</span>
+            <select id="currentUser" onchange="refreshPage()"></select>
+        </div>
+        <button id="switchBtn" style="display:none" onclick="switchMode()">Switch</button>
+        <button id="homeBtn" style="display:none" onclick="showPage('home')">Home</button>
+    </div>
+</div>
+
+<div id="message"></div>
+
+<main>
+
+    <!-- ================= HOME ================= -->
+    <section id="home">
+        <div class="hero">
+            <h1>Share the ride, split the cost</h1>
+            <p>Carpool with people from your office or college who travel the same way.</p>
+        </div>
+
+        <div class="choose">
+            <div class="choice rider" onclick="showPage('rider')">
+                <div class="icon">🧍</div>
+                <h2>I need a ride</h2>
+                <p>Search rides on your route, request a seat and track your requests.</p>
+            </div>
+            <div class="choice driver" onclick="showPage('driver')">
+                <div class="icon">🚗</div>
+                <h2>I'm driving</h2>
+                <p>Publish your route, approve riders and manage your seats.</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 style="color: var(--text)">New here? Create an account</h2>
+            <p class="sub">The same account can be used as a rider and as a driver.</p>
+            <div class="row">
+                <div><label>Name</label><input id="userName" placeholder="Arun Kumar"></div>
+                <div><label>Email</label><input id="userEmail" placeholder="arun@gmail.com"></div>
+                <div><label>Phone</label><input id="userPhone" placeholder="9876543210"></div>
+            </div>
+            <button class="btn" style="background: var(--text)" onclick="addUser()">Create Account</button>
+        </div>
+    </section>
+
+    <!-- ================= RIDER ================= -->
+    <section id="rider" style="display:none">
+        <div class="card">
+            <h2>Find a ride</h2>
+            <p class="sub">Enter your route and the time you want to leave between.</p>
+            <div class="row">
+                <div><label>From</label><input id="searchFrom" placeholder="Gandhipuram"></div>
+                <div><label>To</label><input id="searchTo" placeholder="Sri Eshwar College"></div>
+                <div><label>Date</label><input id="searchDate" type="date"></div>
+                <div><label>Leave after</label><input id="searchStart" type="time" value="07:30"></div>
+                <div><label>Leave before</label><input id="searchEnd" type="time" value="09:30"></div>
+                <div><label>Seats needed</label><input id="searchSeats" type="number" min="1" value="1"></div>
+            </div>
+            <button class="btn" onclick="searchRides()">Search Rides</button>
+            <div id="searchResult" class="list" style="margin-top: 16px"></div>
+        </div>
+
+        <div class="card">
+            <h2>My requests</h2>
+            <p class="sub">Seats you have asked for and their status.</p>
+            <div id="myRequests" class="list"></div>
+        </div>
+    </section>
+
+    <!-- ================= DRIVER ================= -->
+    <section id="driver" style="display:none">
+        <div class="two-col">
+            <div class="card">
+                <h2>Offer a ride</h2>
+                <p class="sub">Publish where you are going and how many seats are free.</p>
+                <div class="row">
+                    <div><label>From</label><input id="rideFrom" placeholder="Gandhipuram"></div>
+                    <div><label>To</label><input id="rideTo" placeholder="Sri Eshwar College"></div>
+                </div>
+                <div class="row" style="margin-top: 12px">
+                    <div><label>Departure</label><input id="rideTime" type="datetime-local"></div>
+                    <div><label>Seats</label><input id="rideSeats" type="number" min="1" value="3"></div>
+                </div>
+                <button class="btn" onclick="publishRide()">Publish Ride</button>
+            </div>
+
+            <div class="card">
+                <h2>Requests waiting <span class="count" id="pendingCount">0</span></h2>
+                <p class="sub">Riders who asked for a seat in your rides.</p>
+                <div id="pendingList" class="list"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>My rides</h2>
+            <p class="sub">Rides you have published.</p>
+            <div id="myRides" class="list"></div>
+        </div>
+    </section>
+
+</main>
+
+<script>
+    let users = [];
+    let mode = "home";
+
+    // ---------- helpers ----------
+
+    async function api(url, method, body) {
+      const options = { method: method || "GET", headers: {} };
+      if (body) {
+        options.headers["Content-Type"] = "application/json";
+        options.body = JSON.stringify(body);
+      }
+      const res = await fetch("/api" + url, options);
+      const text = await res.text();
+      let data = null;
+      try { data = JSON.parse(text); } catch (e) { data = text; }
+      if (!res.ok) {
+        throw new Error(data && data.message ? data.message : "Something went wrong (" + res.status + ")");
+      }
+      return data;
+    }
+
+    function showMessage(text, isError) {
+      document.getElementById("message").innerHTML = '<div class="' + (isError ? "err" : "ok") + '">' + text + '</div>';
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function clearMessage() {
+      document.getElementById("message").innerHTML = "";
+    }
+
+    function value(id) {
+      return document.getElementById(id).value.trim();
+    }
+
+    function currentUserId() {
+      return Number(value("currentUser"));
+    }
+
+    function dayText(t) {
+      const d = new Date(t);
+      return d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+    }
+
+    function timeText(t) {
+      return t.substring(11, 16);
+    }
+
+    function chip(status) {
+      return '<span class="chip ' + status + '">' + status + '</span>';
+    }
+
+    function seatBar(ride) {
+      const used = ride.totalSeats - ride.availableSeats;
+      const percent = Math.round(used * 100 / ride.totalSeats);
+      return '<div class="seats">' + ride.availableSeats + ' of ' + ride.totalSeats + ' seats left' +
+             '<div class="bar"><div style="width:' + percent + '%"></div></div></div>';
+    }
+
+    function timeBox(t) {
+      return '<div class="time-box"><b>' + timeText(t) + '</b><small>' + dayText(t) + '</small></div>';
+    }
+
+    // ---------- pages ----------
+
+    function showPage(page) {
+      mode = page;
+      clearMessage();
+      document.getElementById("home").style.display = page === "home" ? "block" : "none";
+      document.getElementById("rider").style.display = page === "rider" ? "block" : "none";
+      document.getElementById("driver").style.display = page === "driver" ? "block" : "none";
+
+      document.body.classList.toggle("driver-mode", page === "driver");
+      const inside = page !== "home";
+      document.getElementById("whoBox").style.display = inside ? "flex" : "none";
+      document.getElementById("switchBtn").style.display = inside ? "inline-block" : "none";
+      document.getElementById("homeBtn").style.display = inside ? "inline-block" : "none";
+      document.getElementById("switchBtn").textContent = page === "rider" ? "Switch to Driver" : "Switch to Rider";
+      document.getElementById("whoLabel").textContent = page === "rider" ? "Rider:" : "Driver:";
+
+      refreshPage();
+    }
+
+    function switchMode() {
+      showPage(mode === "rider" ? "driver" : "rider");
+    }
+
+    async function loadUsers() {
+      try {
+        users = await api("/users");
+      } catch (e) {
+        showMessage("Cannot connect to the server. Make sure BtoCApplication is running.", true);
+        return;
+      }
+      const select = document.getElementById("currentUser");
+      const old = select.value;
+      select.innerHTML = users.map(u => '<option value="' + u.id + '">' + u.name + '</option>').join("");
+      if (old && users.some(u => String(u.id) === old)) select.value = old;
+    }
+
+    function refreshPage() {
+      if (mode === "rider") loadRiderPage();
+      if (mode === "driver") loadDriverPage();
+    }
+
+    // ---------- rider page ----------
+
+    async function loadRiderPage() {
+      const userId = currentUserId();
+      const box = document.getElementById("myRequests");
+      if (!userId) {
+        box.innerHTML = '<p class="empty">Create an account first on the Home page.</p>';
+        return;
+      }
+      try {
+        const h = await api("/users/" + userId + "/history");
+        if (h.ridesAsRider.length === 0) {
+          box.innerHTML = '<p class="empty">You have not requested any rides yet.</p>';
+          return;
+        }
+        box.innerHTML = h.ridesAsRider.map(q =>
+          '<div class="item">' + timeBox(q.rideOffer.departureTime) +
+          '<div class="grow"><div class="route">' + q.rideOffer.origin + ' → ' + q.rideOffer.destination + '</div>' +
+          '<div class="meta">Driver: ' + q.rideOffer.driver.name + ' · ' + q.seatsRequested + ' seat(s)</div></div>' +
+          chip(q.status) + '</div>'
+        ).join("");
+      } catch (e) {
+        showMessage(e.message, true);
+      }
+    }
+
+    async function searchRides() {
+      const date = value("searchDate");
+      if (!value("searchFrom") || !value("searchTo") || !date) {
+        showMessage("Please fill From, To and Date", true);
+        return;
+      }
+      try {
+        const url = "/rides/search?origin=" + encodeURIComponent(value("searchFrom")) +
+                    "&destination=" + encodeURIComponent(value("searchTo")) +
+                    "&from=" + date + "T" + value("searchStart") + ":00" +
+                    "&to=" + date + "T" + value("searchEnd") + ":00";
+        const rides = await api(url);
+        const box = document.getElementById("searchResult");
+
+        if (rides.length === 0) {
+          box.innerHTML = '<p class="empty">No rides found for this route and time. Try a wider time range.</p>';
+          clearMessage();
+          return;
+        }
+        box.innerHTML = rides.map(r =>
+          '<div class="item">' + timeBox(r.departureTime) +
+          '<div class="grow"><div class="route">' + r.origin + ' → ' + r.destination + '</div>' +
+          '<div class="meta">Driver: ' + r.driver.name + ' · ' + r.driver.phone + '</div></div>' +
+          seatBar(r) +
+          '<div class="actions"><button class="btn small" onclick="requestSeat(' + r.id + ')">Request Seat</button></div></div>'
+        ).join("");
+        showMessage(rides.length + " ride(s) found on your route");
+      } catch (e) {
+        showMessage(e.message, true);
+      }
+    }
+
+    async function requestSeat(rideId) {
+      try {
+        const q = await api("/rides/" + rideId + "/requests?riderId=" + currentUserId(), "POST", {
+          seatsRequested: Number(value("searchSeats"))
+        });
+        showMessage("Seat requested! Waiting for " + q.rideOffer.driver.name + " to approve.");
+        document.getElementById("searchResult").innerHTML = "";
+        loadRiderPage();
+      } catch (e) {
+        showMessage(e.message, true);
+      }
+    }
+
+    // ---------- driver page ----------
+
+    async function loadDriverPage() {
+      const driverId = currentUserId();
+      if (!driverId) {
+        document.getElementById("myRides").innerHTML = '<p class="empty">Create an account first on the Home page.</p>';
+        return;
+      }
+      try {
+        const h = await api("/users/" + driverId + "/history");
+        const rides = h.ridesAsDriver;
+        document.getElementById("myRides").innerHTML = rides.length === 0
+          ? '<p class="empty">You have not published any rides yet.</p>'
+          : rides.map(r =>
+              '<div class="item">' + timeBox(r.departureTime) +
+              '<div class="grow"><div class="route">' + r.origin + ' → ' + r.destination + '</div>' +
+              '<div class="meta">Ride #' + r.id + '</div></div>' +
+              seatBar(r) + chip(r.status) +
+              (r.status !== "CANCELLED"
+                ? '<div class="actions"><button class="btn small light" onclick="cancelRide(' + r.id + ')">Cancel</button></div>' : "") +
+              '</div>'
+            ).join("");
+
+        const all = await api("/requests");
+        const pending = all.filter(q => q.rideOffer.driver.id === driverId && q.status === "PENDING");
+        document.getElementById("pendingCount").textContent = pending.length;
+        document.getElementById("pendingList").innerHTML = pending.length === 0
+          ? '<p class="empty">No one is waiting right now.</p>'
+          : pending.map(q =>
+              '<div class="item"><div class="grow"><div class="route">' + q.rider.name + ' wants ' + q.seatsRequested + ' seat(s)</div>' +
+              '<div class="meta">' + q.rideOffer.origin + ' → ' + q.rideOffer.destination + ' · ' +
+              timeText(q.rideOffer.departureTime) + ', ' + dayText(q.rideOffer.departureTime) + '</div></div>' +
+              '<div class="actions"><button class="btn small green" onclick="approve(' + q.id + ')">Approve</button>' +
+              '<button class="btn small red" onclick="reject(' + q.id + ')">Reject</button></div></div>'
+            ).join("");
+      } catch (e) {
+        showMessage(e.message, true);
+      }
+    }
+
+    async function publishRide() {
+      const time = value("rideTime");
+      try {
+        const r = await api("/rides?driverId=" + currentUserId(), "POST", {
+          origin: value("rideFrom"),
+          destination: value("rideTo"),
+          departureTime: time ? time + ":00" : null,
+          totalSeats: Number(value("rideSeats"))
+        });
+        showMessage("Ride published: " + r.origin + " → " + r.destination + " at " + timeText(r.departureTime));
+        document.getElementById("rideFrom").value = "";
+        document.getElementById("rideTo").value = "";
+        loadDriverPage();
+      } catch (e) {
+        showMessage(e.message, true);
+      }
+    }
+
+    async function approve(requestId) {
+      try {
+        await api("/requests/" + requestId + "/approve?driverId=" + currentUserId(), "PUT");
+        showMessage("Request approved. Seats updated.");
+        loadDriverPage();
+      } catch (e) {
+        showMessage(e.message, true);
+      }
+    }
+
+    async function reject(requestId) {
+      try {
+        await api("/requests/" + requestId + "/reject?driverId=" + currentUserId(), "PUT");
+        showMessage("Request rejected.");
+        loadDriverPage();
+      } catch (e) {
+        showMessage(e.message, true);
+      }
+    }
+
+    async function cancelRide(rideId) {
+      if (!confirm("Cancel this ride?")) return;
+      try {
+        await api("/rides/" + rideId + "/cancel?driverId=" + currentUserId(), "PUT");
+        showMessage("Ride cancelled.");
+        loadDriverPage();
+      } catch (e) {
+        showMessage(e.message, true);
+      }
+    }
+
+    // ---------- account ----------
+
+    async function addUser() {
+      try {
+        const u = await api("/users", "POST", {
+          name: value("userName"),
+          email: value("userEmail"),
+          phone: value("userPhone")
+        });
+        showMessage("Welcome " + u.name + "! Your account is ready. Choose Rider or Driver above.");
+        document.getElementById("userName").value = "";
+        document.getElementById("userEmail").value = "";
+        document.getElementById("userPhone").value = "";
+        await loadUsers();
+        document.getElementById("currentUser").value = u.id;
+      } catch (e) {
+        showMessage(e.message, true);
+      }
+    }
+
+    // ---------- start ----------
+
+    function setDefaults() {
+      const d = new Date();
+      d.setDate(d.getDate() + 1);
+      const tomorrow = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+      document.getElementById("searchDate").value = tomorrow;
+      document.getElementById("rideTime").value = tomorrow + "T08:15";
+    }
+
+    setDefaults();
+    loadUsers();
+</script>
+</body>
+</html>
